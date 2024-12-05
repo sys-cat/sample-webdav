@@ -59,6 +59,10 @@ func main() {
 	fInfo.FileType = http.DetectContentType(fileContents)
 	_, fInfo.FileName = filepath.Split(fInfo.FilePath)
 
+	// Echo infos
+	logger.Info("server info", "ServerInfo", info)
+	logger.Info("upload file info", "FileInfo", fInfo)
+
 	// Create http Request
 	req, err := http.NewRequest("PUT", info.URL, bytes.NewReader(fileContents))
 	if err != nil {
@@ -81,6 +85,6 @@ func main() {
 	if resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusOK {
 		fmt.Println("ファイルが正常にアップロードされました")
 	} else {
-		fmt.Errorf("ファイルのアップロードに失敗しました: %s", resp.Status)
+		fmt.Printf("ファイルのアップロードに失敗しました: %s\n", resp.Status)
 	}
 }
