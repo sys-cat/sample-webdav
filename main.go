@@ -41,6 +41,7 @@ func main() {
 
 	// Get file
 	fInfo := FileInfo{}
+	fmt.Println("Movie file path.....")
 	if _, err := fmt.Scan(&fInfo.FilePath); err != nil {
 		logger.Error("cant scan file path", "detail", err)
 		os.Exit(1)
