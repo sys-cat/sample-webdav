@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"encoding/base64"
 	"fmt"
-	"io"
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
@@ -53,19 +50,28 @@ func main() {
 	defer file.Close()
 
 	// Read file
-	fileContents, err := io.ReadAll(file)
+	fileInfo, err := file.Stat()
 	if err != nil {
 		logger.Error("cant read file", "detail", err)
 	}
-	fInfo.FileType = http.DetectContentType(fileContents)
-	_, fInfo.FileName = filepath.Split(fInfo.FilePath)
+	{
+		// pick 512Bytes for DetectContentType
+		buffer := make([]byte, 512)
+		file.Read(buffer)
+		// Check mimetype
+		fInfo.FileType = http.DetectContentType(buffer)
+		// reset read point
+		file.Seek(0, 0)
+	}
+	// set file name. ps: not use filepath.Split
+	fInfo.FileName = fileInfo.Name()
 
 	// Echo infos
 	logger.Info("server info", "ServerInfo", info)
 	logger.Info("upload file info", "FileInfo", fInfo)
 
 	// Create http Request
-	req, err := http.NewRequest("PUT", info.URL, bytes.NewReader(fileContents))
+	req, err := http.NewRequest("PUT", info.URL, file)
 	if err != nil {
 		logger.Error("NewRequest error", "detail", err)
 	}
