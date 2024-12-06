@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -71,15 +70,12 @@ func main() {
 	logger.Info("upload file info", "FileInfo", fInfo)
 
 	// Create http Request
-	req, err := http.NewRequest("PUT", info.URL, file)
+	req, err := http.NewRequest("PUT", info.URL+"/"+fInfo.FileName, file)
 	if err != nil {
 		logger.Error("NewRequest error", "detail", err)
 	}
-
-	// Create BasicAuth
-	auth := info.Username + ":" + info.Password
-	encodedAuth := base64.StdEncoding.EncodeToString([]byte(auth))
-	req.Header.Add("Authorization", "Basic "+encodedAuth)
+	// Basic Auth
+	req.SetBasicAuth(info.Username, info.Password)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
